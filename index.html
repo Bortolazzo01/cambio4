@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Câmbio Inteligente</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            margin: 0;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* Animação de fundo */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.1), transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(255, 119, 198, 0.1), transparent 50%),
+                        radial-gradient(circle at 40% 20%, rgba(255, 219, 112, 0.1), transparent 50%);
+            z-index: -1;
+            animation: backgroundMove 20s ease infinite;
+        }
+        
+        @keyframes backgroundMove {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(-20px, -20px) rotate(5deg); }
+            100% { transform: translate(0, 0) rotate(0deg); }
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(20, 20, 30, 0.85);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+            color: #fff;
+            font-weight: 300;
+            font-size: 2.5rem;
+            letter-spacing: 1px;
+            position: relative;
+        }
+        
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(90deg, #4facfe, #00f2fe);
+            border-radius: 3px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 400;
+            color: #a0a0b8;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: rgba(79, 172, 254, 0.5);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+        
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+        
+        .currency-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .currency-col {
+            flex: 1;
+        }
+        
+        .rates-section {
+            background: rgba(30, 30, 40, 0.6);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .rates-section:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .rates-title {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #4facfe;
+            font-weight: 400;
+            letter-spacing: 1px;
+        }
+        
+        .rate-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        
+        .rate-label {
+            flex: 1;
+            font-weight: 400;
+            color: #a0a0b8;
+        }
+        
+        .rate-input {
+            flex: 1;
+        }
+        
+        .mode-selector {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 25px;
+            background: rgba(30, 30, 40, 0.6);
+            padding: 15px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .mode-option {
+            flex: 1;
+            text-align: center;
+        }
+        
+        .mode-option input {
+            display: none;
+        }
+        
+        .mode-option label {
+            display: block;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #a0a0b8;
+            font-weight: 400;
+        }
+        
+        .mode-option input:checked + label {
+            background: linear-gradient(135deg, rgba(79, 172, 254, 0.2), rgba(0, 242, 254, 0.2));
+            color: #fff;
+            font-weight: 500;
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.2);
+        }
+        
+        .transaction-type {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 25px;
+            background: rgba(30, 30, 40, 0.6);
+            padding: 15px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .transaction-option {
+            flex: 1;
+            text-align: center;
+        }
+        
+        .transaction-option input {
+            display: none;
+        }
+        
+        .transaction-option label {
+            display: block;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #a0a0b8;
+            font-weight: 400;
+        }
+        
+        .transaction-option input:checked + label {
+            background: linear-gradient(135deg, rgba(255, 119, 198, 0.2), rgba(255, 219, 112, 0.2));
+            color: #fff;
+            font-weight: 500;
+            box-shadow: 0 5px 15px rgba(255, 119, 198, 0.2);
+        }
+        
+        .operation-section {
+            background: rgba(30, 30, 40, 0.6);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .operation-title {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #ff77c6;
+            font-weight: 400;
+            letter-spacing: 1px;
+        }
+        
+        .operation-option {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        
+        .operation-option input {
+            display: none;
+        }
+        
+        .operation-option label {
+            flex: 1;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #a0a0b8;
+            font-weight: 400;
+            text-align: center;
+        }
+        
+        .operation-option input:checked + label {
+            background: linear-gradient(135deg, rgba(255, 119, 198, 0.2), rgba(255, 219, 112, 0.2));
+            color: #fff;
+            font-weight: 500;
+            box-shadow: 0 5px 15px rgba(255, 119, 198, 0.2);
+        }
+        
+        button {
+            background: transparent;
+            color: #fff;
+            border: 1px solid rgba(79, 172, 254, 0.5);
+            padding: 15px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            width: 100%;
+            margin-top: 25px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
+            background: linear-gradient(90deg, #4facfe, #00f2fe);
+            transition: all 0.3s ease;
+            z-index: -1;
+        }
+        
+        button:hover {
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(79, 172, 254, 0.2);
+        }
+        
+        button:hover::before {
+            width: 100%;
+        }
+        
+        .result {
+            margin-top: 30px;
+            padding: 25px;
+            background: rgba(30, 30, 40, 0.6);
+            border-radius: 15px;
+            border-left: 5px solid #4facfe;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .result-title {
+            font-weight: 500;
+            margin-bottom: 15px;
+            color: #4facfe;
+            font-size: 1.1rem;
+        }
+        
+        .result-value {
+            font-size: 28px;
+            font-weight: 300;
+            color: #fff;
+            margin-bottom: 15px;
+        }
+        
+        .conversion-path {
+            margin-top: 15px;
+            font-style: italic;
+            color: #a0a0b8;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .note {
+            margin-top: 25px;
+            padding: 20px;
+            background: rgba(30, 30, 40, 0.6);
+            border-radius: 15px;
+            border-left: 5px solid #ffc107;
+            font-size: 14px;
+            color: #a0a0b8;
+            line-height: 1.6;
+        }
+        
+        .target-currency {
+            margin-top: 30px;
+            padding: 25px;
+            background: rgba(30, 30, 40, 0.6);
+            border-radius: 15px;
+            border-left: 5px solid #9c27b0;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+        }
+        
+        .target-title {
+            font-weight: 500;
+            margin-bottom: 15px;
+            color: #ce93d8;
+            font-size: 1.1rem;
+        }
+        
+        .target-value {
+            font-size: 28px;
+            font-weight: 300;
+            color: #fff;
+            line-height: 1.5;
+        }
+        
+        .error-message {
+            background: rgba(244, 67, 54, 0.1);
+            color: #ffcdd2;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            display: none;
+            border-left: 5px solid #f44336;
+        }
+        
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            padding: 20px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.5);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .footer a {
+            color: #4facfe;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .footer a:hover {
+            color: #00f2fe;
+            text-decoration: underline;
+        }
+        
+        /* Animações de interação */
+        .input-success {
+            animation: inputPulse 0.5s ease;
+        }
+        
+        @keyframes inputPulse {
+            0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(76, 175, 80, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+        }
+        
+        .calculation-success {
+            animation: resultPulse 0.8s ease;
+        }
+        
+        @keyframes resultPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Ícones */
+        .icon {
+            margin-right: 10px;
+            color: #4facfe;
+        }
+        
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .currency-row {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .mode-selector {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .transaction-type {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .operation-option {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-exchange-alt icon"></i>Calculadora de Câmbio Inteligente</h1>
+        
+        <div class="rates-section">
+            <div class="rates-title"><i class="fas fa-chart-line icon"></i>Informe as Cotações Atuais</div>
+            
+            <div class="rate-row">
+                <div class="rate-label">BRL → ARS (Espécie):</div>
+                <div class="rate-input">
+                    <input type="number" id="brlToArsCash" step="0.0001" value="225.00" placeholder="Ex: 225.00">
+                </div>
+            </div>
+            
+            <div class="rate-row">
+                <div class="rate-label">USD → ARS (Espécie):</div>
+                <div class="rate-input">
+                    <input type="number" id="usdToArsCash" step="0.0001" value="1290.00" placeholder="Ex: 1290.00">
+                </div>
+            </div>
+            
+            <div class="rate-row">
+                <div class="rate-label">EUR → ARS (Espécie):</div>
+                <div class="rate-input">
+                    <input type="number" id="eurToArsCash" step="0.0001" value="1500.00" placeholder="Ex: 1500.00">
+                </div>
+            </div>
+            
+            <div class="rate-row">
+                <div class="rate-label">PIX → USD:</div>
+                <div class="rate-input">
+                    <input type="number" id="pixToUsd" step="0.0001" value="5.65" placeholder="Ex: 5.65">
+                </div>
+            </div>
+            
+            <div class="rate-row">
+                <div class="rate-label">PIX → USD Conta:</div>
+                <div class="rate-input">
+                    <input type="number" id="pixToUsdAccount" step="0.0001" value="5.65" placeholder="Ex: 5.65">
+                </div>
+            </div>
+            
+            <div class="rate-row">
+                <div class="rate-label">PIX → ARS Conta:</div>
+                <div class="rate-input">
+                    <input type="number" id="pixToArsAccount" step="0.0001" value="238.00" placeholder="Ex: 238.00">
+                </div>
+            </div>
+            
+            <div class="rate-row">
+                <div class="rate-label">PIX → ARS Espécie:</div>
+                <div class="rate-input">
+                    <input type="number" id="pixToArsCash" step="0.0001" value="232.00" placeholder="Ex: 232.00">
+                </div>
+            </div>
+        </div>
+        
+        <div class="transaction-type">
+            <div class="transaction-option">
+                <input type="radio" id="cashType" name="transactionType" value="cash" checked>
+                <label for="cashType"><i class="fas fa-money-bill-wave icon"></i>Espécie</label>
+            </div>
+            <div class="transaction-option">
+                <input type="radio" id="transferType" name="transactionType" value="transfer">
+                <label for="transferType"><i class="fas fa-exchange-alt icon"></i>Transferência</label>
+            </div>
+        </div>
+        
+        <div id="cashOperations" class="operation-section">
+            <div class="operation-title"><i class="fas fa-money-bill-wave icon"></i>Operações de Espécie</div>
+            
+            <div class="operation-option">
+                <input type="radio" id="brlToArsCashOp" name="cashOperation" value="brlToArsCash" checked>
+                <label for="brlToArsCashOp">BRL → ARS (Real para Peso)</label>
+            </div>
+            
+            <div class="operation-option">
+                <input type="radio" id="usdToArsCashOp" name="cashOperation" value="usdToArsCash">
+                <label for="usdToArsCashOp">USD → ARS (Dólar para Peso)</label>
+            </div>
+            
+            <div class="operation-option">
+                <input type="radio" id="eurToArsCashOp" name="cashOperation" value="eurToArsCash">
+                <label for="eurToArsCashOp">EUR → ARS (Euro para Peso)</label>
+            </div>
+        </div>
+        
+        <div id="transferOperations" class="operation-section" style="display: none;">
+            <div class="operation-title"><i class="fas fa-exchange-alt icon"></i>Operações de Transferência</div>
+            
+            <div class="operation-option">
+                <input type="radio" id="pixToUsdOp" name="transferOperation" value="pixToUsd" checked>
+                <label for="pixToUsdOp">PIX → USD (PIX para Dólar)</label>
+            </div>
+            
+            <div class="operation-option">
+                <input type="radio" id="pixToUsdAccountOp" name="transferOperation" value="pixToUsdAccount">
+                <label for="pixToUsdAccountOp">PIX → USD Conta (PIX para Conta em Dólar)</label>
+            </div>
+            
+            <div class="operation-option">
+                <input type="radio" id="pixToArsAccountOp" name="transferOperation" value="pixToArsAccount">
+                <label for="pixToArsAccountOp">PIX → ARS Conta (PIX para Conta Argentina em Pesos)</label>
+            </div>
+            
+            <div class="operation-option">
+                <input type="radio" id="pixToArsCashOp" name="transferOperation" value="pixToArsCash">
+                <label for="pixToArsCashOp">PIX → ARS Espécie (PIX para Retirar Pesos em Espécie)</label>
+            </div>
+        </div>
+        
+        <div class="mode-selector">
+            <div class="mode-option">
+                <input type="radio" id="convertMode" name="calcMode" value="convert" checked>
+                <label for="convertMode"><i class="fas fa-sync-alt icon"></i>Converter Valor</label>
+            </div>
+            <div class="mode-option">
+                <input type="radio" id="targetMode" name="calcMode" value="target">
+                <label for="targetMode"><i class="fas fa-bullseye icon"></i>Calcular para Valor Alvo</label>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label id="amountLabel" for="amount"><i class="fas fa-dollar-sign icon"></i>Valor a Converter:</label>
+            <input type="number" id="amount" step="0.01" placeholder="Digite o valor">
+        </div>
+        
+        <button id="calculateBtn"><i class="fas fa-calculator icon"></i>Calcular Conversão</button>
+        
+        <div id="errorMessage" class="error-message"></div>
+        
+        <div id="result" class="result">
+            <div class="result-title"><i class="fas fa-check-circle icon"></i>Resultado da Conversão:</div>
+            <div id="resultValue" class="result-value"></div>
+            <div id="conversionPath" class="conversion-path"></div>
+        </div>
+        
+        <div id="targetSection" class="target-currency">
+            <div class="target-title"><i class="fas fa-info-circle icon"></i>Para obter este valor, você precisará de:</div>
+            <div id="targetValue" class="target-value"></div>
+        </div>
+        
+        <div class="note">
+            <strong><i class="fas fa-lightbulb icon"></i>Nota:</strong> As taxas devem ser inseridas como "quantidade da moeda de destino para 1 unidade da moeda de origem".
+        </div>
+        
+        <div class="footer">
+            Desenvolvido por <a href="#">José Bortolazzo</a>
+        </div>
+    </div>
+    <script>
+        // Função para formatar valores monetários
+        function formatCurrency(value, currency) {
+            // Determinar o número de casas decimais com base na moeda
+            let decimals;
+            switch(currency) {
+                case 'BRL':
+                case 'ARS':
+                    decimals = 2;
+                    break;
+                case 'USD':
+                case 'USDT':
+                case 'EUR':
+                    // Para USD, USDT e EUR, usar até 6 casas decimais, mas remover zeros desnecessários
+                    // Se for inteiro, mostrar sem decimais
+                    if (Number.isInteger(value)) {
+                        decimals = 0;
+                    } else {
+                        // Contar casas decimais significativas
+                        const str = value.toString();
+                        const decimalIndex = str.indexOf('.');
+                        if (decimalIndex === -1) {
+                            decimals = 0;
+                        } else {
+                            decimals = Math.min(6, str.length - decimalIndex - 1);
+                        }
+                    }
+                    break;
+                default:
+                    decimals = 2;
+            }
+            
+            // Formatar com vírgula como separador decimal e ponto como separador de milhar
+            return value.toLocaleString('pt-BR', {
+                minimumFractionDigits: decimals,
+                maximumFractionDigits: decimals
+            });
+        }
+        
+        // Função para mostrar mensagens de erro
+        function showError(message) {
+            const errorElement = document.getElementById('errorMessage');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+            
+            // Esconder a mensagem após 5 segundos
+            setTimeout(() => {
+                errorElement.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Função para adicionar animação de sucesso a um elemento
+        function addSuccessAnimation(element) {
+            element.classList.add('input-success');
+            setTimeout(() => {
+                element.classList.remove('input-success');
+            }, 500);
+        }
+        
+        // Inicializar eventos quando o DOM estiver carregado
+        document.addEventListener('DOMContentLoaded', function() {
+            // Adicionar animações quando os campos são preenchidos
+            const inputs = document.querySelectorAll('input[type="number"]');
+            inputs.forEach(input => {
+                input.addEventListener('blur', function() {
+                    if (this.value && !isNaN(parseFloat(this.value))) {
+                        addSuccessAnimation(this);
+                    }
+                });
+            });
+            
+            // Atualizar rótulo do campo de valor conforme o modo
+            document.querySelectorAll('input[name="calcMode"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const amountLabel = document.getElementById('amountLabel');
+                    if (this.value === 'convert') {
+                        amountLabel.innerHTML = '<i class="fas fa-dollar-sign icon"></i>Valor a Converter:';
+                    } else {
+                        amountLabel.innerHTML = '<i class="fas fa-bullseye icon"></i>Valor Desejado:';
+                    }
+                    
+                    // Esconder ambos os resultados quando mudar o modo
+                    document.getElementById('result').style.display = 'none';
+                    document.getElementById('targetSection').style.display = 'none';
+                });
+            });
+            
+            // Alternar entre operações de espécie e transferência
+            document.querySelectorAll('input[name="transactionType"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const cashOperations = document.getElementById('cashOperations');
+                    const transferOperations = document.getElementById('transferOperations');
+                    
+                    if (this.value === 'cash') {
+                        cashOperations.style.display = 'block';
+                        transferOperations.style.display = 'none';
+                    } else {
+                        cashOperations.style.display = 'none';
+                        transferOperations.style.display = 'block';
+                    }
+                    
+                    // Esconder ambos os resultados quando mudar o tipo de transação
+                    document.getElementById('result').style.display = 'none';
+                    document.getElementById('targetSection').style.display = 'none';
+                });
+            });
+            
+            // Evento de clique no botão de calcular
+            document.getElementById('calculateBtn').addEventListener('click', function() {
+                try {
+                    // Obter valores dos campos
+                    const calcMode = document.querySelector('input[name="calcMode"]:checked').value;
+                    const transactionType = document.querySelector('input[name="transactionType"]:checked').value;
+                    const amount = parseFloat(document.getElementById('amount').value);
+                    
+                    // Obter taxas
+                    const brlToArsCashRate = parseFloat(document.getElementById('brlToArsCash').value);
+                    const usdToArsCashRate = parseFloat(document.getElementById('usdToArsCash').value);
+                    const eurToArsCashRate = parseFloat(document.getElementById('eurToArsCash').value);
+                    const pixToUsdRate = parseFloat(document.getElementById('pixToUsd').value);
+                    const pixToUsdAccountRate = parseFloat(document.getElementById('pixToUsdAccount').value);
+                    const pixToArsAccountRate = parseFloat(document.getElementById('pixToArsAccount').value);
+                    const pixToArsCashRate = parseFloat(document.getElementById('pixToArsCash').value);
+                    
+                    // Validar entrada
+                    if (isNaN(amount) || amount <= 0) {
+                        showError('Por favor, digite um valor válido!');
+                        return;
+                    }
+                    
+                    if (isNaN(brlToArsCashRate) || isNaN(usdToArsCashRate) || isNaN(eurToArsCashRate) || 
+                        isNaN(pixToUsdRate) || isNaN(pixToUsdAccountRate) || 
+                        isNaN(pixToArsAccountRate) || isNaN(pixToArsCashRate)) {
+                        showError('Por favor, preencha todas as taxas de câmbio!');
+                        return;
+                    }
+                    
+                    // Calcular conversão com base no tipo de transação e operação selecionada
+                    let result, path, targetResult, targetPath;
+                    
+                    if (transactionType === 'cash') {
+                        const cashOperation = document.querySelector('input[name="cashOperation"]:checked').value;
+                        
+                        switch (cashOperation) {
+                            case 'brlToArsCash':
+                                // BRL → ARS (espécie)
+                                result = amount * brlToArsCashRate;
+                                path = `BRL → ARS (Espécie): ${formatCurrency(amount, 'BRL')} BRL = ${formatCurrency(result, 'ARS')} ARS`;
+                                
+                                if (calcMode === 'target') {
+                                    targetResult = amount / brlToArsCashRate;
+                                    targetPath = `Para obter ${formatCurrency(amount, 'ARS')} ARS em espécie, você precisa de ${formatCurrency(targetResult, 'BRL')} BRL`;
+                                }
+                                break;
+                                
+                            case 'usdToArsCash':
+                                // USD → ARS (espécie)
+                                result = amount * usdToArsCashRate;
+                                path = `USD → ARS (Espécie): ${formatCurrency(amount, 'USD')} USD = ${formatCurrency(result, 'ARS')} ARS`;
+                                
+                                if (calcMode === 'target') {
+                                    targetResult = amount / usdToArsCashRate;
+                                    targetPath = `Para obter ${formatCurrency(amount, 'ARS')} ARS em espécie, você precisa de ${formatCurrency(targetResult, 'USD')} USD`;
+                                }
+                                break;
+                                
+                            case 'eurToArsCash':
+                                // EUR → ARS (espécie)
+                                result = amount * eurToArsCashRate;
+                                path = `EUR → ARS (Espécie): ${formatCurrency(amount, 'EUR')} EUR = ${formatCurrency(result, 'ARS')} ARS`;
+                                
+                                if (calcMode === 'target') {
+                                    targetResult = amount / eurToArsCashRate;
+                                    targetPath = `Para obter ${formatCurrency(amount, 'ARS')} ARS em espécie, você precisa de ${formatCurrency(targetResult, 'EUR')} EUR`;
+                                }
+                                break;
+                        }
+                    } else {
+                        const transferOperation = document.querySelector('input[name="transferOperation"]:checked').value;
+                        
+                        switch (transferOperation) {
+                            case 'pixToUsd':
+                                // PIX → USD (transferência)
+                                result = amount / pixToUsdRate;
+                                path = `PIX → USD (Transferência): ${formatCurrency(amount, 'BRL')} BRL via PIX = ${formatCurrency(result, 'USD')} USD`;
+                                
+                                if (calcMode === 'target') {
+                                    targetResult = amount * pixToUsdRate;
+                                    targetPath = `Para obter ${formatCurrency(amount, 'USD')} USD via PIX, você precisa de ${formatCurrency(targetResult, 'BRL')} BRL via PIX`;
+                                }
+                                break;
+                                
+                            case 'pixToUsdAccount':
+                                // PIX → USD Conta (transferência)
+                                result = amount / pixToUsdAccountRate;
+                                path = `PIX → USD Conta (Transferência): ${formatCurrency(amount, 'BRL')} BRL via PIX = ${formatCurrency(result, 'USD')} USD em conta`;
+                                
+                                if (calcMode === 'target') {
+                                    targetResult = amount * pixToUsdAccountRate;
+                                    targetPath = `Para obter ${formatCurrency(amount, 'USD')} USD em conta via PIX, você precisa de ${formatCurrency(targetResult, 'BRL')} BRL via PIX`;
+                                }
+                                break;
+                                
+                            case 'pixToArsAccount':
+                                // PIX → ARS Conta (transferência)
+                                result = amount * pixToArsAccountRate;
+                                path = `PIX → ARS Conta (Transferência): ${formatCurrency(amount, 'BRL')} BRL via PIX = ${formatCurrency(result, 'ARS')} ARS em conta argentina`;
+                                
+                                if (calcMode === 'target') {
+                                    targetResult = amount / pixToArsAccountRate;
+                                    targetPath = `Para obter ${formatCurrency(amount, 'ARS')} ARS em conta argentina via PIX, você precisa de ${formatCurrency(targetResult, 'BRL')} BRL via PIX`;
+                                }
+                                break;
+                                
+                            case 'pixToArsCash':
+                                // PIX → ARS Espécie (transferência para retirada em espécie)
+                                result = amount * pixToArsCashRate;
+                                path = `PIX → ARS Espécie (Transferência): ${formatCurrency(amount, 'BRL')} BRL via PIX = ${formatCurrency(result, 'ARS')} ARS em espécie`;
+                                
+                                if (calcMode === 'target') {
+                                    targetResult = amount / pixToArsCashRate;
+                                    targetPath = `Para obter ${formatCurrency(amount, 'ARS')} ARS em espécie via PIX, você precisa de ${formatCurrency(targetResult, 'BRL')} BRL via PIX`;
+                                }
+                                break;
+                        }
+                    }
+                    
+                    // Determinar a moeda do resultado
+                    let resultCurrency;
+                    if (transactionType === 'cash') {
+                        resultCurrency = 'ARS';
+                    } else {
+                        if (transferOperation === 'pixToUsd' || transferOperation === 'pixToUsdAccount') {
+                            resultCurrency = 'USD';
+                        } else {
+                            resultCurrency = 'ARS';
+                        }
+                    }
+                    
+                    // Obter elementos do DOM
+                    const resultElement = document.getElementById('result');
+                    const targetSection = document.getElementById('targetSection');
+                    
+                    // Esconder ambos os resultados inicialmente
+                    resultElement.style.display = 'none';
+                    targetSection.style.display = 'none';
+                    
+                    // Exibir resultado conforme o modo selecionado
+                    if (calcMode === 'convert') {
+                        // Modo converter valor: mostrar apenas o resultado da conversão
+                        document.getElementById('resultValue').textContent = `${formatCurrency(result, resultCurrency)} ${resultCurrency}`;
+                        document.getElementById('conversionPath').textContent = path;
+                        
+                        resultElement.style.display = 'block';
+                        
+                        // Adicionar animação ao elemento visível
+                        resultElement.classList.add('calculation-success');
+                        setTimeout(() => {
+                            resultElement.classList.remove('calculation-success');
+                        }, 800);
+                        
+                        // Rolar suavemente para o resultado
+                        resultElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    } else {
+                        // Modo valor alvo: mostrar apenas a seção de valor alvo
+                        document.getElementById('targetValue').textContent = targetPath;
+                        
+                        targetSection.style.display = 'block';
+                        
+                        // Adicionar animação ao elemento visível
+                        targetSection.classList.add('calculation-success');
+                        setTimeout(() => {
+                            targetSection.classList.remove('calculation-success');
+                        }, 800);
+                        
+                        // Rolar suavemente para o resultado
+                        targetSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
+                } catch (error) {
+                    showError('Ocorreu um erro ao calcular: ' + error.message);
+                    console.error(error);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
